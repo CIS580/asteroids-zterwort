@@ -29,24 +29,9 @@ function Player(position, canvas) {
   this.thrusting = false;
   this.steerLeft = false;
   this.steerRight = false;
+  this.level = 0;
 
   var self = this;
-  window.onkeydown = function(event) {
-    switch(event.key) {
-      case 'ArrowUp': // up
-      case 'w':
-        self.thrusting = true;
-        break;
-      case 'ArrowLeft': // left
-      case 'a':
-        self.steerLeft = true;
-        break;
-      case 'ArrowRight': // right
-      case 'd':
-        self.steerRight = true;
-        break;
-    }
-  }
 
   window.onkeyup = function(event) {
     switch(event.key) {
@@ -66,8 +51,6 @@ function Player(position, canvas) {
   }
 }
 
-
-
 /**
  * @function updates the player object
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
@@ -75,7 +58,7 @@ function Player(position, canvas) {
 Player.prototype.update = function(time) {
   // Apply angular velocity
   if(this.steerLeft) {
-    this.angle += time * 0.005;
+    this.angle += time * 0.003;
   }
   if(this.steerRight) {
     this.angle -= 0.1;
@@ -90,8 +73,8 @@ Player.prototype.update = function(time) {
     this.velocity.y -= acceleration.y;
   }
   // Apply velocity
-  this.position.x += this.velocity.x;
-  this.position.y += this.velocity.y;
+  this.position.x += this.velocity.x * this.level;
+  this.position.y += this.velocity.y * this.level;
   // Wrap around the screen
   if(this.position.x < 0) this.position.x += this.worldWidth;
   if(this.position.x > this.worldWidth) this.position.x -= this.worldWidth;
@@ -104,7 +87,7 @@ Player.prototype.update = function(time) {
  * {DOMHighResTimeStamp} time the elapsed time since the last frame
  * {CanvasRenderingContext2D} ctx the context to render into
  */
-Player.prototype.render = function(time, ctx) {
+Player.prototype.render = function(time, ctx, invincibility) {
   ctx.save();
 
   // Draw player's ship
@@ -116,7 +99,12 @@ Player.prototype.render = function(time, ctx) {
   ctx.lineTo(0, 0);
   ctx.lineTo(10, 10);
   ctx.closePath();
-  ctx.strokeStyle = 'white';
+  if(invincibility){
+    ctx.strokeStyle = '#00FBFF'
+  }
+  else {
+    ctx.strokeStyle = 'white';
+  }
   ctx.stroke();
 
   // Draw engine thrust
